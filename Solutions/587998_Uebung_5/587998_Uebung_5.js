@@ -22,6 +22,9 @@ var dt = 1/60;
 var state = "start";
 var initiated = false;
 
+var vs = 0;
+var s = 0;
+
 let playground = {
   width: 10,
   padding: 1
@@ -38,6 +41,13 @@ let base = {
   holeRight: 7.4,
   color: [115, 159, 208]
 };
+
+let slope = {
+  left: 10,
+  right: 9,
+  top: 0.5,
+  bottom: 0
+}
 
 let slingTip = {
   x: -1,
@@ -157,6 +167,9 @@ function gameState(){
       }
       shoot();
     break;
+    case "incline":
+      incline();
+    break;
   }
 }
 
@@ -184,6 +197,79 @@ function shoot(){
     state = "start";
     initiated = false;
   }
+}
+
+function incline(){
+  slingBall.x0 = -slope.left + slingBall.diameter/2;
+  slingBall.y0 = slope.top + slingBall.diameter/2;
+
+  var gk = slope.top - slope.bottom;
+  var ak = slope.left - slope.right;
+  slingBall.alpha = Math.atan2(gk, ak);
+
+  vs = vs + g * Math.sin(slingBall.alpha) * dt;
+  s = s + vs * dt;
+
+  slingBall.x0 = s * Math.cos(slingBall.alpha) - slope.left + slingBall.diameter/2;
+  slingBall.y0 = -s * Math.sin(slingBall.alpha) + slope.top + slingBall.diameter/4;
+}
+
+function uiText(){
+  fill(0);
+  textSize(12);
+  textAlign(CENTER);
+  textStyle(NORMAL);
+  text("Hyun Bin Jeoung 587998", canvasWidth/2, canvasHeight/11)
+
+  textSize(20);
+  textAlign(CENTER);
+  textStyle(BOLD);
+	text("Punkte: " + points + " | Windstärke: " + wind, canvasWidth/2, canvasHeight/8);
+}
+
+function startButton(){
+  let newCol = color(0, 255, 0);
+
+  let buttonNew = createButton('START');
+  buttonNew.style('font-size', '30px');
+  buttonNew.style('background-color', newCol);
+  buttonNew.style('border-radius', '10px');
+  buttonNew.position(canvasWidth/1.4, canvasHeight/1.1);
+  buttonNew.mousePressed(startPressed); //New Function
+}
+
+function startPressed(){
+  //neuer Versuch mit fortlaufenden Punkten
+  wind = Math.floor(random(1, 11));
+  points = Math.floor(random(1, 101)); //nur zum testen von reset
+  
+  //state = "run";
+
+  state = "incline";
+  vs = 0;
+  s = 0;
+}
+
+function resetButton(){
+  let resetCol = color(255, 0, 0);
+
+  let buttonReset = createButton('RESET');
+  buttonReset.style('font-size', '30px');
+  buttonReset.style('background-color', resetCol);
+  buttonReset.style('border-radius', '10px');
+  buttonReset.position(canvasWidth/4, canvasHeight/1.1);
+  buttonReset.mousePressed(resetPressed); //Reset Function
+}
+
+function resetPressed(){
+  //kompletter Reset von Punkten für ein neues Game
+  wind = Math.floor(random(1, 11));
+  points = 0;
+
+  state = "start";
+  initiated = false;
+  slingBall.x0 = -0.4;
+  slingBall.y0 = 0.3;
 }
 
 function mousePressed(){
@@ -231,60 +317,6 @@ function mouseReleased(){
   if(dragging){
     dragging = false;
   }
-}
-
-function uiText(){
-  fill(0);
-  textSize(12);
-  textAlign(CENTER);
-  textStyle(NORMAL);
-  text("Hyun Bin Jeoung 587998", canvasWidth/2, canvasHeight/11)
-
-  textSize(20);
-  textAlign(CENTER);
-  textStyle(BOLD);
-	text("Punkte: " + points + " | Windstärke: " + wind, canvasWidth/2, canvasHeight/8);
-}
-
-function startButton(){
-  let newCol = color(0, 255, 0);
-
-  let buttonNew = createButton('START');
-  buttonNew.style('font-size', '30px');
-  buttonNew.style('background-color', newCol);
-  buttonNew.style('border-radius', '10px');
-  buttonNew.position(canvasWidth/1.4, canvasHeight/1.1);
-  buttonNew.mousePressed(startPressed); //New Function
-}
-
-function startPressed(){
-  //neuer Versuch mit fortlaufenden Punkten
-  wind = Math.floor(random(1, 11));
-  points = Math.floor(random(1, 101)); //nur zum testen von reset
-  
-  state = "run";
-}
-
-function resetButton(){
-  let resetCol = color(255, 0, 0);
-
-  let buttonReset = createButton('RESET');
-  buttonReset.style('font-size', '30px');
-  buttonReset.style('background-color', resetCol);
-  buttonReset.style('border-radius', '10px');
-  buttonReset.position(canvasWidth/4, canvasHeight/1.1);
-  buttonReset.mousePressed(resetPressed); //Reset Function
-}
-
-function resetPressed(){
-  //kompletter Reset von Punkten für ein neues Game
-  wind = Math.floor(random(1, 11));
-  points = 0;
-
-  state = "start";
-  initiated = false;
-  slingBall.x0 = -0.4;
-  slingBall.y0 = 0.3;
 }
 
 //Transformation
