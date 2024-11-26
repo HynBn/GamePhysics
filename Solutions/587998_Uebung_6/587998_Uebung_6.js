@@ -1,7 +1,7 @@
 /* template GTAT2 Game Technology & Interactive Systems */
 /* Autor:  Hyun Bin Jeoung 587998*/
-/* Übung Nr. 5*/
-/* Datum: 12.11.2024*/
+/* Übung Nr. 6*/
+/* Datum: 26.11.2024*/
 
 /* declarations */ 
 var canvasWidth = window.innerWidth;
@@ -219,6 +219,7 @@ function onGround(){
   // slingBall.x0 += slingBall.vx * dt;
 
   slingBall.y0 = slingBall.diameter/2;
+
 }
 
 function onSlope(){
