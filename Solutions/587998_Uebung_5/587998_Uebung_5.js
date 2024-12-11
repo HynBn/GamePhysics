@@ -178,7 +178,6 @@ function gameState(){
     break;
     case "onSlope":
       onSlope();
-      state = "start"
     break;
     case "end":
       resetGame();

@@ -1,7 +1,7 @@
 /* template GTAT2 Game Technology & Interactive Systems */
 /* Autor:  Hyun Bin Jeoung 587998*/
-/* Übung Nr. 6*/
-/* Datum: 26.11.2024*/
+/* Übung Nr. 7*/
+/* Datum: 10.12.2024*/
 
 /* declarations */ 
 var canvasWidth = window.innerWidth;
@@ -13,6 +13,7 @@ var M;
 
 var points = 0;
 var wind = 0;
+var windStr;
 
 var dragging = false;
 
@@ -37,8 +38,24 @@ var slopeLength = [];
 var g_ = [];
 
 var cR = 0.05;
+var cW = 0.45;
 
-g = 9.81;
+var pLuft = 1.3;
+
+var g = 9.81;
+
+var slingBall = {
+	x0: -0.4, y0: 0.3,
+	diameter: 0.2,
+	v0: 8,
+	vx0: 1, vy0: 1,
+	vx: 0, vy: 0,
+	alpha: 0,
+	color: [18, 117, 46],
+	s: 0,
+	vs: 0,
+  m: 0.5
+  };
 
 
 /* prepare program */
@@ -52,6 +69,8 @@ function setup() {
   startButton();
   resetButton();
 
+  wind = Math.floor(random(-25, 25));
+  windStr = wind;
   
   calculateProfile();
   for (n = 0; n < N-1; n++) {
@@ -71,7 +90,7 @@ function setup() {
 
 /* run program */
 function draw() {									
-background(255);
+background(245);
 
 /* administration */
   uiText();
@@ -79,6 +98,7 @@ background(255);
 /* calculation */
   switch(state){
     case "start":
+
     break;
     case "onFlight":
       if(!initiated){
@@ -99,7 +119,7 @@ background(255);
   }
 
   //für Windstärke 1 - 10
-  flag.flagWind = wind/10 + 8;
+  flag.flagWind = wind/25 + 8;
 
 /* display */
   push();
@@ -162,9 +182,18 @@ function calculate(){
 }
 
 function shoot(){
-  slingBall.vy = slingBall.vy - g * dt;
-  slingBall.y0 = slingBall.y0 + slingBall.vy * dt;
-  slingBall.x0 = slingBall.x0 + slingBall.vx0 * dt;
+  // slingBall.vy = slingBall.vy - g * dt;
+  // slingBall.y0 = slingBall.y0 + slingBall.vy * dt;
+  // slingBall.x0 = slingBall.x0 + slingBall.vx0 * dt;
+
+  var r = cW * pLuft * (Math.PI * Math.pow(slingBall.diameter/2,2)/2);
+
+  var vyAlt = slingBall.vy;
+  slingBall.vy -= (g + r/slingBall.m * Math.sqrt(Math.pow(slingBall.vx + windStr,2) + Math.pow(slingBall.vy,2)) * slingBall.vy) * dt;
+  slingBall.vx -= r/slingBall.m * Math.sqrt(Math.pow(slingBall.vx + windStr,2) + Math.pow(vyAlt,2)) * (slingBall.vx + windStr) * dt;
+
+  slingBall.y0 += slingBall.vy * dt;
+  slingBall.x0 += slingBall.vx * dt;
 
   if (slingBall.y0 <= slingBall.diameter / 2){
     slingBall.y0 = slingBall.diameter / 2;
@@ -172,13 +201,13 @@ function shoot(){
     state = "onGround";
   }
 
-  // if (slingBall.x0 + slingBall.diameter/2 >= -hindarance.left &&
-  //     slingBall.x0 - slingBall.diameter/2 <= -hindarance.right &&
-  //     slingBall.y0 - slingBall.diameter/2 <= hindarance.height &&
-  //     slingBall.y0 + slingBall.diameter/2 >= 0) {
-  //   slingBall.vx = -slingBall.vx; // Reflexion
-  //   state = "onFlight";
-  // }
+  if (slingBall.x0 + slingBall.diameter/2 >= -hindarance.left &&
+      slingBall.x0 - slingBall.diameter/2 <= -hindarance.right &&
+      slingBall.y0 - slingBall.diameter/2 <= hindarance.height &&
+      slingBall.y0 + slingBall.diameter/2 >= 0) {
+    slingBall.vx = -slingBall.vx; // Reflexion
+    state = "onFlight";
+  }
 }
 
 function onGround(){
@@ -241,7 +270,7 @@ function onSlope(){
   // slingBall.s += slingBall.vs * dt;
 
   dt_ = (slopeLength[1] - lim[0] - slingBall.s) / slingBall.vs;
-
+  
   if (slingBall.s >= slopeLength[1] - lim[0]){
     slingBall.x0 = profile[2].x + lim[0];
     slingBall.y0 = slingBall.diameter/2;
@@ -263,9 +292,9 @@ function uiText(){
   textSize(12);
   textAlign(CENTER);
   textStyle(NORMAL);
-  text("Hyun Bin Jeoung 587998", canvasWidth/2, canvasHeight/11)
-  text("Ball speed: ", canvasWidth/2.16, canvasHeight/7);
-  text(Math.abs(slingBall.vx.toFixed(5)), canvasWidth/2, canvasHeight/7)
+  text("Hyun Bin Jeoung, 587998", canvasWidth/2, canvasHeight/11)
+  text("Ball speed: " + Math.abs(slingBall.vx.toFixed(3)), canvasWidth/2, canvasHeight/6.7);
+  // text(Math.abs(slingBall.vx.toFixed(5)), canvasWidth/2, canvasHeight/7)
 
   textSize(20);
   textAlign(CENTER);
@@ -274,7 +303,7 @@ function uiText(){
 }
 
 function startButton(){
-  let newCol = color(0, 255, 0);
+  let newCol = color(0, 255, 255);
 
   let buttonNew = createButton('START');
   buttonNew.style('font-size', '30px');
@@ -286,20 +315,15 @@ function startButton(){
 
 function startPressed(){
   //neuer Versuch mit fortlaufenden Punkten
-  wind = Math.floor(random(1, 11));
+  // wind = Math.floor(random(-25, 25));
+  // windStr = wind;
   points = Math.floor(random(1, 101)); //nur zum testen von reset
   
-  // state = "onFlight";
-
-  vs = 0;
-  s = 0;
-
-  state = "onSlope";
-
+  state = "onFlight";
 }
 
 function resetButton(){
-  let resetCol = color(255, 0, 0);
+  let resetCol = color(255, 20, 90);
 
   let buttonReset = createButton('RESET');
   buttonReset.style('font-size', '30px');
@@ -311,8 +335,9 @@ function resetButton(){
 
 function resetPressed(){
   //kompletter Reset von Punkten für ein neues Game
-  wind = Math.floor(random(1, 11));
   points = 0;
+  wind = Math.floor(random(-25, 25));
+  windStr = wind;
   
   resetGame();
 }
@@ -488,8 +513,8 @@ function drawFlag(){
 
   beginShape();
 
-   vertex((-flagpole.left*M), (flag.top*M));
-   vertex((-flagpole.left*M), (flag.bottom*M));
+   vertex(((-flagpole.left+0.015)*M), (flag.top*M));  //+0.015 for it to be in the middle of the pole
+   vertex(((-flagpole.left+0.015)*M), (flag.bottom*M));
    vertex((-flag.flagWind*M), (flag.middle*M));
 
   endShape(CLOSE);

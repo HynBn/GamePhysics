@@ -1,7 +1,7 @@
 /* template GTAT2 Game Technology & Interactive Systems */
 /* Autor:  Hyun Bin Jeoung 587998*/
-/* Übung Nr. 6*/
-/* Datum: 26.11.2024*/
+/* Übung Nr. 5*/
+/* Datum: 12.11.2024*/
 
 /* declarations */ 
 var canvasWidth = window.innerWidth;
@@ -35,8 +35,6 @@ var beta = [];
 var lim = [];										
 var slopeLength = [];										
 var g_ = [];
-
-var cR = 0.05;
 
 g = 9.81;
 
@@ -105,16 +103,17 @@ background(255);
   push();
     translate(xi0, yi0);
     scale(1, -1);
+    ellipse(0, 0, 10);
 
     //Draw the Playground
     drawBase();
     drawSling();
     drawSlingTip();
+
     drawRedBall();
     drawHindarance();
     drawFlag();
     drawFlagpole();
-    ellipse(0, 0, 7); //Nullpunkt
 
     fill(slingBall.color);
     switch(state){
@@ -172,43 +171,29 @@ function shoot(){
     state = "onGround";
   }
 
-  // if (slingBall.x0 + slingBall.diameter/2 >= -hindarance.left &&
-  //     slingBall.x0 - slingBall.diameter/2 <= -hindarance.right &&
-  //     slingBall.y0 - slingBall.diameter/2 <= hindarance.height &&
-  //     slingBall.y0 + slingBall.diameter/2 >= 0) {
-  //   slingBall.vx = -slingBall.vx; // Reflexion
-  //   state = "onFlight";
-  // }
 }
 
 function onGround(){
-  slingBall.x0 += slingBall.vx * dt;
+  // slingBall.x0 += slingBall.vx * dt;
   slingBall.y0 = slingBall.diameter/2;
 
-    // if (slingBall.x0 <= -hindarance.left - slingBall.diameter/2) {
-    //   slingBall.x0 = slingBall.x0 + slingBall.vx * dt;
-    // } 
+    if (slingBall.x0 <= -hindarance.left - slingBall.diameter/2) {
+      slingBall.x0 = slingBall.x0 + slingBall.vx * dt;
+    } 
 
-  if (slingBall.x0 + slingBall.diameter/2 >= -hindarance.left &&
-      slingBall.x0 - slingBall.diameter/2 <= -hindarance.right &&
-      slingBall.y0 <= hindarance.height &&
-      slingBall.y0 >= 0) {
-    slingBall.vx = -slingBall.vx; // Reflexion
+  if (slingBall.x0 <= -hindarance.left - slingBall.diameter/2 && slingBall.x0 >= -hindarance.left - slingBall.diameter/2){
+    if (slingBall.vx <= 0)
+      slingBall.x0 = -hindarance.left - slingBall.diameter/2;
+    else
+      slingBall.x0 = -hindarance.left + slingBall.diameter/2;
+    slingBall.vx = -slingBall.vx;
     state = "onGround";
   }
 
-  if (slingBall.x0 <= profile[2].x + lim[0]){
-    slingBall.s = slopeLength[1] - lim[0];
+  if (slingBall.x0 <= profile[2].x + lim[1]){
+    slingBall.s = slopeLength[1] - lim[1];
     slingBall.vs = cos(beta[1]) * slingBall.vx;
     state = "onSlope";
-  }
-
-  slingBall.vx -= cR * g * Math.sign(slingBall.vx) * dt;
-  // slingBall.vx -= cR * g * dt;
-
-  if (Math.abs(slingBall.vx) < 0.01) {
-    slingBall.vx = 0;
-    state = "end";
   }
 }
 
@@ -236,14 +221,10 @@ function onSlope(){
 
   slingBall.vs -= g_[1] * dt;
   slingBall.s += slingBall.vs * dt;
+  dt_ = (slopeLength[1] - lim[1] - slingBall.s) / slingBall.vs;
 
-  // slingBall.vs -= (g_[1] + cR * g) * dt; // Beschleunigung + Rollreibung
-  // slingBall.s += slingBall.vs * dt;
-
-  dt_ = (slopeLength[1] - lim[0] - slingBall.s) / slingBall.vs;
-
-  if (slingBall.s >= slopeLength[1] - lim[0]){
-    slingBall.x0 = profile[2].x + lim[0];
+  if (slingBall.s >= slopeLength[1] - lim[1]){
+    slingBall.x0 = profile[2].x + lim[1];
     slingBall.y0 = slingBall.diameter/2;
     slingBall.vx = cos(beta[1]) * slingBall.vs;
     state = "onGround";
@@ -264,8 +245,6 @@ function uiText(){
   textAlign(CENTER);
   textStyle(NORMAL);
   text("Hyun Bin Jeoung 587998", canvasWidth/2, canvasHeight/11)
-  text("Ball speed: ", canvasWidth/2.16, canvasHeight/7);
-  text(Math.abs(slingBall.vx.toFixed(5)), canvasWidth/2, canvasHeight/7)
 
   textSize(20);
   textAlign(CENTER);

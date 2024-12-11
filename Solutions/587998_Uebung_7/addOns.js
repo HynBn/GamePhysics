@@ -1,7 +1,7 @@
 /* template GTAT2 Game Technology & Interactive Systems - addOns */
 /* Autor: Hyun Bin Jeoung 587998 */
-/* Übung Nr. 6*/
-/* Datum: 26.11.2024*/
+/* Übung Nr. 7*/
+/* Datum: 10.12.2024*/
 
 
 
@@ -81,15 +81,4 @@ let playground = {
 	color: [255, 0, 0]
   };
   
-  var slingBall = {
-	x0: -0.4, y0: 0.3,
-	diameter: 0.2,
-	v0: 8,
-	vx0: 1, vy0: 1,
-	vx: 0, vy: 0,
-	alpha: 0,
-	color: [18, 117, 46],
-	s: 0,
-	vs: 0
-  };
 
