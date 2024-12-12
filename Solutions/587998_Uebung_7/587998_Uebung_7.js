@@ -45,7 +45,7 @@ var pLuft = 1.3;
 var g = 9.81;
 
 var slingBall = {
-	x0: -0.4, y0: 0.3,
+	x0: -0.4, y0: 0.2,
 	diameter: 0.2,
 	v0: 8,
 	vx0: 1, vy0: 1,
@@ -68,9 +68,6 @@ function setup() {
 
   startButton();
   resetButton();
-
-  wind = Math.floor(random(-25, 25));
-  windStr = wind;
   
   calculateProfile();
   for (n = 0; n < N-1; n++) {
@@ -85,6 +82,9 @@ function setup() {
   for (n = 0; n < N-2; n++) {
     lim[n] = 0.5*slingBall.diameter*tan(0.5*(beta[n+1] - beta[n]));
   }
+
+  //Give a windspeed randomly between -25 to 25
+  setWindSpeed();
 }
 
 
@@ -118,8 +118,8 @@ background(245);
     break;
   }
 
-  //für Windstärke 1 - 10
-  flag.flagWind = wind/25 + 8;
+  //ändert die mittlere Flagvertex je nach den verschiedenen Windstärken von -25 bis 25 
+  flag.flagWind = wind/25 + 8.015;  //+8.015, weil der Pole Mittelpunkt bei x=8.015 liegt
 
 /* display */
   push();
@@ -160,7 +160,7 @@ background(245);
 
 function resetGame(){
   slingBall.x0 = -0.4;
-  slingBall.y0 = 0.3;
+  slingBall.y0 = 0.2;
   slingBall.vx = 0;
   slingBall.vy = 0;
   slingBall.vx0 = 1;
@@ -168,6 +168,8 @@ function resetGame(){
   slingBall.alpha = 0;
   slingBall.s = 0;
   slingBall.vs = 0;
+
+  setWindSpeed();
 
   initiated = false;
   state = "start";
@@ -181,6 +183,10 @@ function calculate(){
   slingBall.vy = slingBall.vy0;
 }
 
+function setWindSpeed(){
+  wind = Math.floor(random(-25, 25));
+}
+
 function shoot(){
   // slingBall.vy = slingBall.vy - g * dt;
   // slingBall.y0 = slingBall.y0 + slingBall.vy * dt;
@@ -189,8 +195,8 @@ function shoot(){
   var r = cW * pLuft * (Math.PI * Math.pow(slingBall.diameter/2,2)/2);
 
   var vyAlt = slingBall.vy;
-  slingBall.vy -= (g + r/slingBall.m * Math.sqrt(Math.pow(slingBall.vx + windStr,2) + Math.pow(slingBall.vy,2)) * slingBall.vy) * dt;
-  slingBall.vx -= r/slingBall.m * Math.sqrt(Math.pow(slingBall.vx + windStr,2) + Math.pow(vyAlt,2)) * (slingBall.vx + windStr) * dt;
+  slingBall.vy -= (g + r/slingBall.m * Math.sqrt(Math.pow(slingBall.vx + wind,2) + Math.pow(slingBall.vy,2)) * slingBall.vy) * dt;
+  slingBall.vx -= r/slingBall.m * Math.sqrt(Math.pow(slingBall.vx + wind,2) + Math.pow(vyAlt,2)) * (slingBall.vx + wind) * dt;
 
   slingBall.y0 += slingBall.vy * dt;
   slingBall.x0 += slingBall.vx * dt;
@@ -336,9 +342,7 @@ function resetButton(){
 function resetPressed(){
   //kompletter Reset von Punkten für ein neues Game
   points = 0;
-  wind = Math.floor(random(-25, 25));
-  windStr = wind;
-  
+
   resetGame();
 }
 
