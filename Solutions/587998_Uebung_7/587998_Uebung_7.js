@@ -169,6 +169,8 @@ function resetGame(){
   slingBall.s = 0;
   slingBall.vs = 0;
 
+  points = 0;
+
   setWindSpeed();
 
   initiated = false;
@@ -220,10 +222,6 @@ function onGround(){
   slingBall.x0 += slingBall.vx * dt;
   slingBall.y0 = slingBall.diameter/2;
 
-    // if (slingBall.x0 <= -hindarance.left - slingBall.diameter/2) {
-    //   slingBall.x0 = slingBall.x0 + slingBall.vx * dt;
-    // } 
-
   if (slingBall.x0 + slingBall.diameter/2 >= -hindarance.left &&
       slingBall.x0 - slingBall.diameter/2 <= -hindarance.right &&
       slingBall.y0 <= hindarance.height &&
@@ -239,7 +237,6 @@ function onGround(){
   }
 
   slingBall.vx -= cR * g * Math.sign(slingBall.vx) * dt;
-  // slingBall.vx -= cR * g * dt;
 
   if (Math.abs(slingBall.vx) < 0.01) {
     slingBall.vx = 0;
@@ -248,32 +245,8 @@ function onGround(){
 }
 
 function onSlope(){
-  // slingBall.x0 = -slope.left + slingBall.diameter/2;
-  // slingBall.y0 = slope.top + slingBall.diameter/2;
-
-  // var gk = slope.top - slope.bottom;
-  // var ak = slope.left - slope.right;
-  // slingBall.alpha = Math.atan2(gk, ak);
-
-  // var lim = slingBall.diameter/2 * Math.tan(slingBall.alpha/2);
-  // var slopeLength = Math.sqrt(Math.pow(base.width - slope.right, 2) + Math.pow(base.height - base.nullpunkt, 2));
-
-  // vs = vs + g * Math.sin(slingBall.alpha) * dt;
-  // s = s + vs * dt;
-
-  // slingBall.x0 = s * Math.cos(slingBall.alpha) - slope.left + slingBall.diameter/2;
-  // slingBall.y0 = -s * Math.sin(slingBall.alpha) + slope.top + slingBall.diameter/4;
-
-  // if (s >= slopeLength - lim){
-  //   slingBall.vx = vs;
-  //   state = "onGround"; 
-  // }
-
   slingBall.vs -= g_[1] * dt;
   slingBall.s += slingBall.vs * dt;
-
-  // slingBall.vs -= (g_[1] + cR * g) * dt; // Beschleunigung + Rollreibung
-  // slingBall.s += slingBall.vs * dt;
 
   dt_ = (slopeLength[1] - lim[0] - slingBall.s) / slingBall.vs;
   
@@ -285,11 +258,6 @@ function onSlope(){
   }
 }
 
-function mouseReleased(){
-  if(dragging){
-    dragging = false;
-  }
-}
 
 /****************************************************** UI Elements ******************************************************/
 
@@ -340,14 +308,17 @@ function resetButton(){
 }
 
 function resetPressed(){
-  //kompletter Reset von Punkten für ein neues Game
-  points = 0;
-
   resetGame();
 }
 
 
 /****************************************************** Controls ******************************************************/
+
+function mouseReleased(){
+  if(dragging){
+    dragging = false;
+  }
+}
 
 function mousePressed(){
   // Koordinaten von inneres zu kartetisches Koordinatensystem
