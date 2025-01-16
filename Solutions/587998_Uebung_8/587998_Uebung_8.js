@@ -49,8 +49,8 @@ var n = 50;
 var Fn;
 var rm = 0.8;
 
-var slingBall = {
-	x0: -0.4, y0: 0.2,
+var playBall = {
+	x0: -0.7, y0: 0.4,
 	diameter: 0.2,
 	v0: 8,
 	vx0: 1, vy0: 1,
@@ -61,7 +61,15 @@ var slingBall = {
 	vs: 0,
   m: 0.5
   };
-
+  
+var sling = {
+  nullpunkt: 0,
+  right: 0.9,
+  left: 1.1,
+  color: [32, 75, 33],
+  phi: 0,
+  s: 0
+};
 
 /* prepare program */
 function setup() {								
@@ -85,7 +93,7 @@ function setup() {
   
   // Berechnung der Limiter
   for (n = 0; n < N-2; n++) {
-    lim[n] = 0.5*slingBall.diameter*tan(0.5*(beta[n+1] - beta[n]));
+    lim[n] = 0.5*playBall.diameter*tan(0.5*(beta[n+1] - beta[n]));
   }
 
   //Give a windspeed randomly between -25 to 25
@@ -103,16 +111,17 @@ background(245);
 /* calculation */
   switch(state){
     case "start":
-
+      sling.phi = -HALF_PI;
+      sling.s = l0 + playBall.m * g / n;
     break;
     case "onCatapult":
       onCatapult();
     break;
     case "onFlight":
-      if(!initiated){
-        // calculate();
-        initiated = true;
-      }
+      // if(!initiated){
+      //   calculate();
+      //   initiated = true;
+      // }
       onFlight();
     break;
     case "onGround":
@@ -144,7 +153,7 @@ background(245);
     drawFlagpole();
     ellipse(0, 0, 7); //Nullpunkt
 
-    fill(slingBall.color);
+    fill(playBall.color);
     switch(state){
       case "start":
         drawSlingshot();        
@@ -152,14 +161,14 @@ background(245);
         drawSlingshot();
       case "onGround":
       case "onFlight":
-        drawSlingBall();
+        drawplayBall();
       break;
       case "end":
       case "onSlope":
         push();
           translate(slopeStart.x*M, slopeStart.y*M);
           rotate(beta[1]);
-          ellipse((slingBall.s + lim[0])*M, (slingBall.diameter/2)*M, slingBall.diameter*M);
+          ellipse((playBall.s + lim[0])*M, (playBall.diameter/2)*M, playBall.diameter*M);
         pop();
     }
   pop();
@@ -169,15 +178,15 @@ background(245);
 /****************************************************** Calculations ******************************************************/
 
 function resetGame(){
-  slingBall.x0 = -0.4;
-  slingBall.y0 = 0.2;
-  slingBall.vx = 0;
-  slingBall.vy = 0;
-  slingBall.vx0 = 1;
-  slingBall.vy0 = 1;
-  slingBall.alpha = 0;
-  slingBall.s = 0;
-  slingBall.vs = 0;
+  playBall.x0 = -0.7;
+  playBall.y0 = 0.4;
+  playBall.vx = 0;
+  playBall.vy = 0;
+  playBall.vx0 = 1;
+  playBall.vy0 = 1;
+  playBall.alpha = 0;
+  playBall.s = 0;
+  playBall.vs = 0;
 
   points = 0;
 
@@ -188,99 +197,108 @@ function resetGame(){
 }
 
 // function calculate(){
-//   slingBall.alpha = Math.atan2(slingTip.y - slingBall.y0, slingTip.x - slingBall.x0);
-//   slingBall.vx0 = slingBall.v0 * Math.cos(slingBall.alpha); 
-//   slingBall.vy0 = slingBall.v0 * Math.sin(slingBall.alpha); 
-//   slingBall.vx = slingBall.vx0;
-//   slingBall.vy = slingBall.vy0;
+  // playBall.alpha = Math.atan2(slingTip.y - playBall.y0, slingTip.x - playBall.x0);
+  // playBall.vx0 = playBall.v0 * Math.cos(playBall.alpha); 
+  // playBall.vy0 = playBall.v0 * Math.sin(playBall.alpha); 
+  // playBall.vx = playBall.vx0;
+  // playBall.vy = playBall.vy0;
 // }
 
 function setWindSpeed(){
-  // wind = Math.floor(random(-25, 25));
+  wind = Math.floor(random(-25, 25));
   wind = 0;
 }
 
 function onCatapult(){
-  sling.phi = Math.atan2((slingBall.y0 - slingTip.y)/(slingBall.x0 - slingTip.x));
-  sling.s = Math.sqrt(Math.pow((slingBall.y0 - slingTip.y), 2) + Math.pow((slingBall.x0 - slingTip.x), 2));
+  sling.s = Math.sqrt(Math.pow((playBall.y0 - slingTip.y), 2) + Math.pow((playBall.x0 - slingTip.x), 2));
+  sling.phi = Math.atan2((playBall.y0 - slingTip.y), (playBall.x0 - slingTip.x));
 
   if (sling.s > l0) {
-    Fn = n * (sling.s - l0);
+    Fn = (sling.s - l0) * n * n;
   } else {
     Fn = 0;
   }
 
-  slingBall.vx = slingBall.vx - (Fn * cos(sling.phi)/slingBall.m + rm * slingBall.vx) * dt;
-  slingBall.vy = slingBall.vy - (g + Fn * sin(sling.phi)/slingBall.m + rm * slingBall.vy) * dt;
+  // playBall.vx = playBall.vx - (Fn * cos(sling.phi)/playBall.m + rm * playBall.vx) * dt;
+  // playBall.vy = playBall.vy - (g + Fn * sin(sling.phi)/playBall.m + rm * playBall.vy) * dt;
+
+  // playBall.vx = playBall.vx - (playBall.vx * rm + Fn * cos(sling.phi) / playBall.m) * dt;
+  // playBall.vy = playBall.vy - (playBall.vy * rm + Fn * sin(sling.phi) / playBall.m + g) * dt;
+
+  playBall.vx -= ((n/playBall.m) * (sling.s - l0) * Fn * cos(sling.phi) + rm * playBall.vx) * dt;
+  playBall.vy -= (g + (n/playBall.m) * (sling.s - l0) * Fn * sin(sling.phi) + rm) * dt;
+
+  playBall.x0 += playBall.vx * dt;
+  playBall.y0 += playBall.vy * dt;
 
   state = "onFlight";
 }
 
 function onFlight(){
-  // slingBall.vy = slingBall.vy - g * dt;
-  // slingBall.y0 = slingBall.y0 + slingBall.vy * dt;
-  // slingBall.x0 = slingBall.x0 + slingBall.vx0 * dt;
+  // playBall.vy = playBall.vy - g * dt;
+  // playBall.y0 = playBall.y0 + playBall.vy * dt;
+  // playBall.x0 = playBall.x0 + playBall.vx0 * dt;
 
-  var r = cW * pLuft * (Math.PI * Math.pow(slingBall.diameter/2,2)/2);
+  var r = cW * pLuft * (Math.PI * Math.pow(playBall.diameter/2,2)/2);
 
-  var vyAlt = slingBall.vy;
-  slingBall.vy -= (g + r/slingBall.m * Math.sqrt(Math.pow(slingBall.vx + wind,2) + Math.pow(slingBall.vy,2)) * slingBall.vy) * dt;
-  slingBall.vx -= r/slingBall.m * Math.sqrt(Math.pow(slingBall.vx + wind,2) + Math.pow(vyAlt,2)) * (slingBall.vx + wind) * dt;
+  var vyAlt = playBall.vy;
+  playBall.vy -= (g + r/playBall.m * Math.sqrt(Math.pow(playBall.vx + wind,2) + Math.pow(playBall.vy,2)) * playBall.vy) * dt;
+  playBall.vx -= r/playBall.m * Math.sqrt(Math.pow(playBall.vx + wind,2) + Math.pow(vyAlt,2)) * (playBall.vx + wind) * dt;
 
-  slingBall.y0 += slingBall.vy * dt;
-  slingBall.x0 += slingBall.vx * dt;
+  playBall.y0 += playBall.vy * dt;
+  playBall.x0 += playBall.vx * dt;
 
-  if (slingBall.y0 <= slingBall.diameter / 2){
-    slingBall.y0 = slingBall.diameter / 2;
-    slingBall.vy = 0;
+  if (playBall.y0 <= playBall.diameter / 2){
+    playBall.y0 = playBall.diameter / 2;
+    playBall.vy = 0;
     state = "onGround";
   }
 
-  if (slingBall.x0 + slingBall.diameter/2 >= -hindarance.left &&
-      slingBall.x0 - slingBall.diameter/2 <= -hindarance.right &&
-      slingBall.y0 - slingBall.diameter/2 <= hindarance.height &&
-      slingBall.y0 + slingBall.diameter/2 >= 0) {
-    slingBall.vx = -slingBall.vx; // Reflexion
+  if (playBall.x0 + playBall.diameter/2 >= -hindarance.left &&
+      playBall.x0 - playBall.diameter/2 <= -hindarance.right &&
+      playBall.y0 - playBall.diameter/2 <= hindarance.height &&
+      playBall.y0 + playBall.diameter/2 >= 0) {
+    playBall.vx = -playBall.vx; // Reflexion
     state = "onFlight";
   }
 }
 
 function onGround(){
-  slingBall.x0 += slingBall.vx * dt;
-  slingBall.y0 = slingBall.diameter/2;
+  playBall.x0 += playBall.vx * dt;
+  playBall.y0 = playBall.diameter/2;
 
-  if (slingBall.x0 + slingBall.diameter/2 >= -hindarance.left &&
-      slingBall.x0 - slingBall.diameter/2 <= -hindarance.right &&
-      slingBall.y0 <= hindarance.height &&
-      slingBall.y0 >= 0) {
-    slingBall.vx = -slingBall.vx; // Reflexion
+  if (playBall.x0 + playBall.diameter/2 >= -hindarance.left &&
+      playBall.x0 - playBall.diameter/2 <= -hindarance.right &&
+      playBall.y0 <= hindarance.height &&
+      playBall.y0 >= 0) {
+    playBall.vx = -playBall.vx; // Reflexion
     state = "onGround";
   }
 
-  if (slingBall.x0 <= profile[2].x + lim[0]){
-    slingBall.s = slopeLength[1] - lim[0];
-    slingBall.vs = cos(beta[1]) * slingBall.vx;
+  if (playBall.x0 <= profile[2].x + lim[0]){
+    playBall.s = slopeLength[1] - lim[0];
+    playBall.vs = cos(beta[1]) * playBall.vx;
     state = "onSlope";
   }
 
-  slingBall.vx -= cR * g * Math.sign(slingBall.vx) * dt;
+  playBall.vx -= cR * g * Math.sign(playBall.vx) * dt;
 
-  if (Math.abs(slingBall.vx) < 0.01) {
-    slingBall.vx = 0;
+  if (Math.abs(playBall.vx) < 0.01) {
+    playBall.vx = 0;
     state = "end";
   }
 }
 
 function onSlope(){
-  slingBall.vs -= g_[1] * dt;
-  slingBall.s += slingBall.vs * dt;
+  playBall.vs -= g_[1] * dt;
+  playBall.s += playBall.vs * dt;
 
-  dt_ = (slopeLength[1] - lim[0] - slingBall.s) / slingBall.vs;
+  dt_ = (slopeLength[1] - lim[0] - playBall.s) / playBall.vs;
   
-  if (slingBall.s >= slopeLength[1] - lim[0]){
-    slingBall.x0 = profile[2].x + lim[0];
-    slingBall.y0 = slingBall.diameter/2;
-    slingBall.vx = cos(beta[1]) * slingBall.vs;
+  if (playBall.s >= slopeLength[1] - lim[0]){
+    playBall.x0 = profile[2].x + lim[0];
+    playBall.y0 = playBall.diameter/2;
+    playBall.vx = cos(beta[1]) * playBall.vs;
     state = "onGround";
   }
 }
@@ -294,9 +312,9 @@ function uiText(){
   textAlign(CENTER);
   textStyle(NORMAL);
   text("Hyun Bin Jeoung, 587998", canvasWidth/2, canvasHeight/11)
-  text("Ball speed: " + Math.abs(slingBall.vx.toFixed(3)), canvasWidth/2, canvasHeight/6.7);
+  text("Ball speed: " + Math.abs(playBall.vx.toFixed(3)), canvasWidth/2, canvasHeight/6.7);
   text("State: " + state, canvasWidth/2, canvasHeight/6);
-  // text(Math.abs(slingBall.vx.toFixed(5)), canvasWidth/2, canvasHeight/7)
+  // text(Math.abs(playBall.vx.toFixed(5)), canvasWidth/2, canvasHeight/7)
 
   textSize(20);
   textAlign(CENTER);
@@ -317,10 +335,12 @@ function startButton(){
 
 function startPressed(){
   //neuer Versuch mit fortlaufenden Punkten
-  // wind = Math.floor(random(-25, 25));
-  // windStr = wind;
+  wind = Math.floor(random(-25, 25));
+  windStr = wind;
   points = Math.floor(random(1, 101)); //nur zum testen von reset
   
+  // state = "onCatapult";
+
   //state = "onFlight";
 }
 
@@ -347,16 +367,18 @@ function mouseReleased(){
     dragging = false;
 
     state = "onCatapult";
+
   }
+
 }
 
 function mousePressed(){
   // Koordinaten von inneres zu kartetisches Koordinatensystem
-  let slingBallCanvasX = kXi(slingBall.x0 * M);
-  let slingBallCanvasY = kYi(slingBall.y0 * M);
+  let playBallCanvasX = kXi(playBall.x0 * M);
+  let playBallCanvasY = kYi(playBall.y0 * M);
   
-  let distance = dist(mouseX, mouseY, slingBallCanvasX, slingBallCanvasY);
-  if (distance < slingBall.diameter * M) {
+  let distance = dist(mouseX, mouseY, playBallCanvasX, playBallCanvasY);
+  if (distance < playBall.diameter * M) {
     dragging = true;
   }
 }
@@ -375,17 +397,17 @@ function mouseDragged() {
       dx = dx / distance;
       dy = dy / distance;
       
-      slingBall.x0 = slingTip.x + dx;
-      slingBall.y0 = slingTip.y + dy;
+      playBall.x0 = slingTip.x + dx;
+      playBall.y0 = slingTip.y + dy;
     } else if (distance < 0.3){ //0.3 Meter Begrenzung
       dx = dx / distance;
       dy = dy / distance;
       
-      slingBall.x0 = slingTip.x + dx * 0.3;
-      slingBall.y0 = slingTip.y + dy * 0.3;
+      playBall.x0 = slingTip.x + dx * 0.3;
+      playBall.y0 = slingTip.y + dy * 0.3;
     } else {
-      slingBall.x0 = mouseXCanvas;
-      slingBall.y0 = mouseYCanvas;
+      playBall.x0 = mouseXCanvas;
+      playBall.y0 = mouseYCanvas;
     }
     redraw();
   }
@@ -417,8 +439,8 @@ function calculateProfile(){
   profile[1] = createVector(-base.width, slope.top);
   profile[2] = createVector(-slope.right, 0);
   profile[3] = createVector(-base.holeLeft, 0);
-	profile[4] = createVector(-base.holeLeft, -slingBall.diameter);
-	profile[5] = createVector(-base.holeRight, -slingBall.diameter);
+	profile[4] = createVector(-base.holeLeft, -playBall.diameter);
+	profile[5] = createVector(-base.holeRight, -playBall.diameter);
 	profile[6] = createVector(-base.holeRight, 0);
 	profile[7] = createVector(-hindarance.left, 0);
 	profile[8] = createVector(-hindarance.left, hindarance.height);
@@ -430,11 +452,11 @@ function calculateProfile(){
 	profile[14] = createVector(0, 0);
 }
 
-function drawSlingBall(){
+function drawplayBall(){
   //ellipse((-0.3*M), (0.4*M), 0.2*M);
-  fill(slingBall.color);
+  fill(playBall.color);
 
-  ellipse((slingBall.x0*M), (slingBall.y0*M),slingBall.diameter*M);
+  ellipse((playBall.x0*M), (playBall.y0*M),playBall.diameter*M);
 }
 
 function drawRedBall(){
@@ -452,7 +474,7 @@ function drawSlingshot() {
   beginShape();
 
   vertex((slingTip.x*M), (slingTip.y*M));
-  vertex((slingBall.x0*M), (slingBall.y0*M));
+  vertex((playBall.x0*M), (playBall.y0*M));
 
   endShape(CLOSE);
 
@@ -473,8 +495,8 @@ function drawBase(){
     vertex((-base.width*M), base.height*M);
     vertex((-base.startRamp*M), (base.nullpunkt));
     vertex((-base.holeLeft*M), (base.nullpunkt));
-    vertex((-base.holeLeft*M), (-slingBall.diameter*M));
-    vertex((-base.holeRight*M), (-slingBall.diameter*M));
+    vertex((-base.holeLeft*M), (-playBall.diameter*M));
+    vertex((-base.holeRight*M), (-playBall.diameter*M));
     vertex((-base.holeRight*M), (base.nullpunkt));
 
   endShape(CLOSE);

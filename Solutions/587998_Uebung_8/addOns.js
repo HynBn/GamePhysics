@@ -35,15 +35,6 @@ let playground = {
 	color: 0
   };
   
-  let sling = {
-	nullpunkt: 0,
-	right: 0.9,
-	left: 1.1,
-	color: [32, 75, 33],
-	phi: 0,
-	s: 0
-  }
-  
   let slingShot = {
 	color: [141, 161, 189],
 	stroke: [130, 149, 169],
