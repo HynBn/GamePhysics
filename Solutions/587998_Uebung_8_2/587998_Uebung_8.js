@@ -44,11 +44,11 @@ var pLuft = 1.3;
 
 var g = 9.81;
 
-// var l0 = 0.25; //Ruhefederlänge 25cm
+var l0 = 0.25; //Ruhefederlänge 25cm
 // var n = 50;
 var Fn;
 var Fn0;
-var friction = 0.8;
+var rm = 0.8;
 
 var playBall = {
 	x0: -0.7, y0: 0.4,
@@ -70,8 +70,7 @@ var sling = {
   color: [32, 75, 33],
   phi: 0,
   s: 0,
-  n: 50,
-  l0: 0.25
+  n: 50
 };
 
 /* prepare program */
@@ -103,7 +102,7 @@ function setup() {
   setWindSpeed();
 
   sling.phi = -HALF_PI;
-  sling.s = sling.l0 + playBall.m * g / sling.n;
+  sling.s = l0 + playBall.m * g / sling.n;
 }
 
 
@@ -136,6 +135,9 @@ background(245);
       onSlope();
     break;
     case "end":
+      dt = 0;
+    break;
+    case "repeat":
       resetGame();
     break;
   }
@@ -197,7 +199,7 @@ function resetGame(){
 
   setWindSpeed();
 
-  // initiated = false;
+  initiated = false;
   state = "start";
 }
 
@@ -218,32 +220,42 @@ function onStart(){
   sling.phi = atan2((playBall.y0 - slingTip.y), (playBall.x0 - slingTip.x));
   sling.s = sqrt(sq(playBall.y0 - slingTip.y) + sq(playBall.x0 - slingTip.x));
 
-  Fn0 = sling.n * (sling.s - sling.l0);
+  Fn0 = (sling.s - l0) * sling.n;
   if (Fn0 < 0){
     Fn0 = 0;
   }
 }
 
 function onCatapult(){
-  sling.phi = atan2((playBall.y0 - slingTip.y), (playBall.x0 - slingTip.x));
   sling.s = sqrt(sq(playBall.y0 - slingTip.y) + sq(playBall.x0 - slingTip.x));
+  sling.phi = atan2((playBall.y0 - slingTip.y), (playBall.x0 - slingTip.x));
 
-  if (sling.s > sling.l0) {
-    Fn = sling.n * (sling.s - sling.l0);
+  if (sling.s > l0) {
+    Fn = (sling.s - l0) * sling.n;
   } else {
     Fn = 0;
   }
 
-  // playBall.vx = playBall.vx - (Fn/playBall.m * cos(sling.phi) + friction * playBall.vx) * dt;
-  // playBall.vy = playBall.vy - (g + Fn/playBall.m * sin(sling.phi) + friction * playBall.vy) * dt;
+  playBall.vx = playBall.vx - (Fn * cos(sling.phi)/playBall.m + rm * playBall.vx) * dt;
+  playBall.vy = playBall.vy - (g + Fn * sin(sling.phi)/playBall.m + rm * playBall.vy) * dt;
 
-  playBall.vx = playBall.vx - ((sling.n/playBall.m) * (sling.s - sling.l0) * Fn * cos(sling.phi) + friction) * dt;
-  playBall.vy = playBall.vy - (g + (sling.n/playBall.m) * (sling.s - sling.l0) * Fn * sin(sling.phi) + friction) * dt;
+  // playBall.vx = playBall.vx - (playBall.vx * rm + Fn * cos(sling.phi) / playBall.m) * dt;
+  // playBall.vy = playBall.vy - (playBall.vy * rm + Fn * sin(sling.phi) / playBall.m + g) * dt;
+
+  // playBall.vx -= ((sling.n/playBall.m) * (sling.s - l0) * Fn * cos(sling.phi) + rm * playBall.vx) * dt;
+  // playBall.vy -= (g + (sling.n/playBall.m) * (sling.s - l0) * Fn * sin(sling.phi) + rm) * dt;
 
   playBall.x0 += playBall.vx * dt;
   playBall.y0 += playBall.vy * dt;
 
-  state = "onFlight";
+  // if(playBall.y0 <= 0.5*playBall.diameter){
+  //   playBall = 0.5*playBall.diameter;
+  //   state = "end";
+  // }
+
+  if((sling.s < l0 || sling.phi > HALF_PI) && Fn0 > 0){
+    state = "onFlight";
+  }
 }
 
 function onFlight(){
@@ -326,7 +338,7 @@ function uiText(){
   text("Hyun Bin Jeoung, 587998", canvasWidth/2, canvasHeight/11)
   text("Ball speed: " + Math.abs(playBall.vx.toFixed(3)), canvasWidth/2, canvasHeight/6.7);
   text("State: " + state, canvasWidth/2, canvasHeight/6);
-  // text(, canvasWidth/2, canvasHeight/7)
+  // text(Math.abs(playBall.vx.toFixed(5)), canvasWidth/2, canvasHeight/7)
 
   textSize(20);
   textAlign(CENTER);
@@ -379,7 +391,9 @@ function mouseReleased(){
     dragging = false;
 
     state = "onCatapult";
+
   }
+
 }
 
 function mousePressed(){
