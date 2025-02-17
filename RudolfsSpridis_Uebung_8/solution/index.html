@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Minigolf Physics</title>
+    <meta name="date.created" content="2022-10-12">
+
+    <style>
+        body {
+            padding: 0;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Fester Header */
+        #header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #6CA8E5; /* Blau */
+            color: white;
+            text-align: center;
+            padding: 10px;
+            font-size: 24px;
+            z-index: 10;
+        }
+
+        /* Style für den Canvas, damit er unter dem Header angezeigt wird */
+        canvas {
+            display: block;
+            margin-top: 60px; /* Platz für den Header */
+        }
+
+        /* Info-Feld */
+        #infoField, #secondInfoField {
+            position: fixed;
+            top: 70px;
+            background-color: white;
+            padding: 10px;
+            border: 1px solid #000;
+            font-size: 18px;
+            z-index: 10;
+        }
+        
+        #infoField {
+            left: 10px;
+        }
+
+        #secondInfoField {
+            left: 10px; 
+            top: 170px;
+        }
+    </style>
+
+
+            <script src="../../../p5/p5.js"></script>
+</head>
+
+<body>
+    <div id="header">
+        Rudolfs Spridis, 586867, Übung 9 Game Physics, 10.01.2025
+        <!-- Checkbox zum Ein- und Ausblenden der Achsen -->
+        <label style="margin-left: 100px;">
+            <input type="checkbox" id="toggleAxes" checked> Achsen anzeigen
+        </label>
+
+        <!-- Buttons für NEW und RESET -->
+        <button id="newButton" style="margin-left: 50px;">LAUNCH</button>
+        <button id="resetButton" style="margin-left: 20px;">RESET</button>
+    </div>
+
+    <div id="infoField">
+        Points: 0<br>
+        Wind: 0 km/h<br>
+        State:
+    </div>
+
+    <div id="secondInfoField">
+        Mit Klick auf den Ball Feder einstellen <br>
+        und mit "LAUNCH" schießen.<br>
+        Wenn zu Langsam > wird nicht abgefeuert.<br>
+        + Wind wurde korrigiert
+        
+    </div>
+
+    <main></main>
+
+    <!-- zuerst addonss laden, dann die andere für neue features -->
+    <script src="addOns.js"></script>
+    <script src="RudolfsSpridis_Uebung_8.js"></script>
+</body>
+</html>

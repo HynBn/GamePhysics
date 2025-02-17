@@ -1,7 +1,7 @@
 /* template GTAT2 Game Technology & Interactive Systems */
 /* Autor:  Hyun Bin Jeoung 587998*/
-/* Übung Nr. 8*/
-/* Datum: 07.01.2025*/
+/* Übung Nr. 9*/
+/* Datum: 21.01.2025*/
 
 /* declarations */ 
 var canvasWidth = window.innerWidth;
@@ -99,7 +99,7 @@ function setup() {
     lim[n] = 0.5*playBall.diameter*tan(0.5*(beta[n+1] - beta[n]));
   }
 
-  //Give a windspeed randomly between -25 to 25
+  //Give a windspeed randomly between -5 to 5
   setWindSpeed();
 
   sling.phi = -HALF_PI;
@@ -211,7 +211,7 @@ function resetGame(){
 
 function setWindSpeed(){
   wind = Math.floor(random(-5, 5));
-  wind = 0;
+  windStr = wind;
 }
 
 function onStart(){
@@ -270,12 +270,29 @@ function onFlight(){
     state = "onGround";
   }
 
+  if(playBall.x0 >= profile[1].x && playBall.x0 <= profile[2].x) {
+    var ySlope = profile[1].y + (playBall.x0 - profile[1].x) * tan(beta[1]);
+    if(playBall.y0 <= ySlope + playBall.diameter/2) {
+      playBall.y0 = ySlope + playBall.diameter/2;
+      playBall.vy = 0;
+
+      playBall.s = (playBall.x0 - profile[1].x) / cos(beta[1]);
+      playBall.vs = cos(beta[1]) * playBall.vx + sin(beta[1]) * playBall.vy;
+
+      state = "onSlope";
+    }
+  }
+
   if (playBall.x0 + playBall.diameter/2 >= -hindarance.left &&
       playBall.x0 - playBall.diameter/2 <= -hindarance.right &&
       playBall.y0 - playBall.diameter/2 <= hindarance.height &&
       playBall.y0 + playBall.diameter/2 >= 0) {
     playBall.vx = -playBall.vx; // Reflexion
     state = "onFlight";
+  }
+
+  if(playBall.x0 - playBall.diameter/2 <= profile[0].x) {
+    playBall.vx = -playBall.vx * 0.8;
   }
 }
 
@@ -310,6 +327,18 @@ function onSlope(){
   playBall.s += playBall.vs * dt;
 
   dt_ = (slopeLength[1] - lim[0] - playBall.s) / playBall.vs;
+
+  playBall.x0 = profile[1].x + playBall.s * cos(beta[1]);
+  playBall.y0 = profile[1].y + playBall.s * sin(beta[1]);
+  
+  if(playBall.x0 - playBall.diameter/2 <= profile[0].x) {
+    playBall.vx = -playBall.vx;
+  }
+
+  if(playBall.s + playBall.diameter/2 <= lim[0]){
+    playBall.s = lim[0];
+    playBall.vs = -playBall.vs * 0.8;
+  }
   
   if (playBall.s >= slopeLength[1] - lim[0]){
     playBall.x0 = profile[2].x + lim[0];

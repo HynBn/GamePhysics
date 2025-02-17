@@ -1,7 +1,7 @@
 /* template GTAT2 Game Technology & Interactive Systems - addOns */
 /* Autor: Hyun Bin Jeoung 587998 */
-/* Übung Nr. 8*/
-/* Datum: 07.01.2025*/
+/* Übung Nr. 10*/
+/* Datum: 27.01.2025*/
 
 
 
@@ -17,8 +17,9 @@ let playground = {
 	width: 10,
 	maxHeight: 4,
 	startRamp: 9,
-	holeLeft: 7.6,
+	holeLeft: 7.65,
 	holeRight: 7.4,
+	holeDepth: 0.4,
 	color: [115, 159, 208]
   };
   
@@ -68,8 +69,8 @@ let playground = {
   }
   
   var redBall = {
-	x0: -6,
-	y0: 0.1,
+	x0: -10.1,
+	y0: 4.1,
 	diameter: 0.2,
 	color: [255, 0, 0]
   };
